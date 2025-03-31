@@ -4,6 +4,11 @@ class LispValue:
     def to_string(self):
         raise NotImplementedError
 
+class Nil(LispValue):
+    def __init__(self, val):
+        super.__init__('nil')
+        self.val=None
+
 class Symbol(LispValue):
     def __init__(self, val):
         super().__init__('symbol')
