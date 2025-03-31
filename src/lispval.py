@@ -29,11 +29,11 @@ class Num(LispValue):
         return s
 
 class ListVal(LispValue):
-    def __init__(self, val):
+    def __init__(self, vals):
         super().__init__('list')
-        self.val=val if val is not None else []
+        self.vals=vals if vals is not None else []
     def add(self, i):
-        self.val.append(i)
+        self.vals.append(i)
     def to_string(self):
         return "(" + " ".join(i.to_string() for i in self.val) + ")"
 
