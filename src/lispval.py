@@ -1,6 +1,6 @@
 class LispValue:
     def __init__(self, type_):
-        self.type=type
+        self.type=type_
     def to_string(self):
         raise NotImplementedError
 
