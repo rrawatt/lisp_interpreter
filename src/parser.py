@@ -1,28 +1,36 @@
-from lispval import ListVal
-from lispval import Symbol
-from lispval import Num
+from __future__ import annotations
+from typing import List
+from .lispval import LispValue, Symbol, Number, ListValue
 
-def tokenize(exp):
-    exp=exp.replace("(", " ( ". replace(")", " ) "))
-    return exp.split()
+def tokenize(source: str) -> List[str]:
+    source = source.replace("(", " ( ").replace(")", " ) ")
+    return source.split()
 
-def parse(tokens):
-    if len(tokens)==0:
-        raise Exception("Unexpected EOF while parsing")
-    tok=tokens.pop(0)
-    if tok=='(':
-        out=[]
-        while(tokens[0]!=')'):
-            out.append(parse(tokens))
-        tokens.pop(0)
-        return ListVal(out)
-    elif tok==')':
-        raise Exception("Unexpected '('")
-    elif (tok[0]=='"' and tok[-1]=='"') or (tok[0]=="'" and tok[-1]=="'"):
-        return Symbol(tok[1:-1])
+def parse(tokens: List[str]) -> LispValue:
+    if not tokens:
+        raise Exception("Unexpected EOF while reading")
+    token: str = tokens.pop(0)
+    if token == "(":
+        elements: List[LispValue] = []
+        while tokens[0] != ")":
+            elements.append(parse(tokens))
+        tokens.pop(0)  # remove ')'
+        return ListValue(elements)
+    elif token == ")":
+        raise Exception("Unexpected )")
+    elif token.startswith('"') and token.endswith('"'):
+        # Treat quoted strings as symbols.
+        return Symbol(token[1:-1])
     else:
         try:
-            num=float(tok)
-            return Num(num)
-        except:
-            return Symbol(tok)
+            number_value: float = float(token)
+            return Number(number_value)
+        except ValueError:
+            return Symbol(token)
+
+def parse_program(source: str) -> List[LispValue]:
+    tokens: List[str] = tokenize(source)
+    expressions: List[LispValue] = []
+    while tokens:
+        expressions.append(parse(tokens))
+    return expressions

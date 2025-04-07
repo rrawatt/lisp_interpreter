@@ -1,60 +1,70 @@
+from __future__ import annotations
+from typing import List, Callable, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from environment import Environment
+
+# Base class for all Lisp values.
 class LispValue:
-    def __init__(self, type_):
-        self.type=type_
-    def to_string(self):
+    def __init__(self, value_type: str) -> None:
+        self.value_type: str = value_type
+
+    def to_string(self) -> str:
         raise NotImplementedError
 
-class Nil(LispValue):
-    def __init__(self, val):
-        super.__init__('nil')
-        self.val=None
-
+# Symbol type.
 class Symbol(LispValue):
-    def __init__(self, val):
+    def __init__(self, name: str) -> None:
         super().__init__('symbol')
-        self.val=val
+        self.name: str = name
 
-    def to_string(self):
-        return self.value
+    def to_string(self) -> str:
+        return self.name
 
-class Num(LispValue):
-    def __init__(self, val):
-        super().__init__('num')
-        self.val=val
-    
-    def to_string(self):
-        s=str(self.val)
+# Number type.
+class Number(LispValue):
+    def __init__(self, value: float) -> None:
+        super().__init__('number')
+        self.value: float = value
+
+    def to_string(self) -> str:
+        s: str = str(self.value)
         if s.endswith('.0'):
-            s=s[:-2]
+            s = s[:-2]
         return s
 
-class ListVal(LispValue):
-    def __init__(self, vals):
+# List type.
+class ListValue(LispValue):
+    def __init__(self, elements: List[LispValue] = None) -> None:
         super().__init__('list')
-        self.vals=vals if vals is not None else []
-    def add(self, i):
-        self.vals.append(i)
-    def to_string(self):
-        return "(" + " ".join(i.to_string() for i in self.val) + ")"
+        self.elements: List[LispValue] = elements if elements is not None else []
 
-class Func(LispValue):
-    def __init__(self, name, func):
-        super().__init__('func')
-        self.name=name
-        self.func=func
-    
-    def call(self, args, env):
-        return self.func(args, env)
+    def add(self, element: LispValue) -> None:
+        self.elements.append(element)
 
-    def to_string(self):
+    def to_string(self) -> str:
+        return "(" + " ".join(item.to_string() for item in self.elements) + ")"
+
+# Built-in function type.
+class Function(LispValue):
+    def __init__(self, name: str, func: Callable[[List[LispValue], Environment], LispValue]) -> None:
+        super().__init__('function')
+        self.name: str = name
+        self.func: Callable[[List[LispValue], Environment], LispValue] = func
+
+    def call(self, arguments: List[LispValue], env: Environment) -> LispValue:
+        return self.func(arguments, env)
+
+    def to_string(self) -> str:
         return "#<function:" + self.name + ">"
 
+# Lambda (user-defined function).
 class Lambda(LispValue):
-    def __init__(self, parameters, body, env):
+    def __init__(self, parameters: List[str], body: LispValue, env: Environment) -> None:
         super().__init__('lambda')
-        self.parameters=parameters
-        self.body=body
-        self.env=env
-    
-    def to_string(self):
+        self.parameters: List[str] = parameters
+        self.body: LispValue = body
+        self.env: Environment = env
+
+    def to_string(self) -> str:
         return "#<lambda>"
