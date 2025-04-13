@@ -4,7 +4,7 @@ from typing import List, Callable, TYPE_CHECKING
 if TYPE_CHECKING:
     from environment import Environment
 
-# Base class for all Lisp values.
+
 class LispValue:
     def __init__(self, value_type: str) -> None:
         self.value_type: str = value_type
@@ -12,7 +12,6 @@ class LispValue:
     def to_string(self) -> str:
         raise NotImplementedError
 
-# Symbol type.
 class Symbol(LispValue):
     def __init__(self, name: str) -> None:
         super().__init__('symbol')
@@ -21,7 +20,7 @@ class Symbol(LispValue):
     def to_string(self) -> str:
         return self.name
 
-# Number type.
+
 class Number(LispValue):
     def __init__(self, value: float) -> None:
         super().__init__('number')
@@ -33,7 +32,7 @@ class Number(LispValue):
             s = s[:-2]
         return s
 
-# List type.
+
 class ListValue(LispValue):
     def __init__(self, elements: List[LispValue] = None) -> None:
         super().__init__('list')
@@ -45,7 +44,6 @@ class ListValue(LispValue):
     def to_string(self) -> str:
         return "(" + " ".join(item.to_string() for item in self.elements) + ")"
 
-# Built-in function type.
 class Function(LispValue):
     def __init__(self, name: str, func: Callable[[List[LispValue], Environment], LispValue]) -> None:
         super().__init__('function')
@@ -58,7 +56,6 @@ class Function(LispValue):
     def to_string(self) -> str:
         return "#<function:" + self.name + ">"
 
-# Lambda (user-defined function).
 class Lambda(LispValue):
     def __init__(self, parameters: List[str], body: LispValue, env: Environment) -> None:
         super().__init__('lambda')
